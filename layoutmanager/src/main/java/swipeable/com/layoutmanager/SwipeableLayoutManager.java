@@ -90,7 +90,7 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
    * @param maxShowCount default value 3
    */
   public SwipeableLayoutManager setMaxShowCount(int maxShowCount) {
-    this.maxShowCount = maxShowCount;
+    this.maxShowCount = Math.max(maxShowCount, 1);
     return this;
   }
 
@@ -100,7 +100,7 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
    * @param scaleGap min value = 0 max value = 1 default value = 0.1
    */
   public SwipeableLayoutManager setScaleGap(float scaleGap) {
-    this.scaleGap = scaleGap;
+    this.scaleGap = Math.min(Math.max(0,scaleGap), 1);
     return this;
   }
 
@@ -131,7 +131,7 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
    * @return
    */
   public SwipeableLayoutManager setAnimationDuratuion(long animationDuratuion) {
-    this.animationDuratuion = animationDuratuion;
+    this.animationDuratuion = Math.max(1,animationDuratuion);
     return this;
   }
 }
