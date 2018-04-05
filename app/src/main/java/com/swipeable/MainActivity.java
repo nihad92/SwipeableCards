@@ -11,7 +11,6 @@ import swipeable.com.layoutmanager.touchelper.ItemTouchHelper;
 public class MainActivity extends AppCompatActivity {
 
   private ListAdapter adapter;
-  private ItemTouchHelper itemTouchHelper;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -32,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
 
           }
         });
-    itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
+    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
     itemTouchHelper.attachToRecyclerView(recyclerView);
-    recyclerView.setLayoutManager(new SwipeableLayoutManager());
+    recyclerView.setLayoutManager(new SwipeableLayoutManager().setAngle(10).setAnimationDuratuion(500).setMaxShowCount(3).setScaleGap(0.1f).setTransYGap(0));
     recyclerView.setAdapter(adapter = new ListAdapter());
   }
 }
