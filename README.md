@@ -1,5 +1,7 @@
 # SwipeableCards
 
+[![](https://jitpack.io/v/nihad92/SwipeableCards.svg)](https://jitpack.io/#nihad92/SwipeableCards)
+
 Library for creating Tinder-like swipe cards effect using RecyclerView
 
 ![Demo gif](https://i.imgur.com/yg0F8V3.gif)
@@ -11,7 +13,24 @@ Library provides three Helper classes for creating tinder-like swipe card effect
  * SwipeableLayoutManager used for ordrering views in recycler view
  
 ### Download
-TODO
+
+Add to your project gradle
+
+```
+allprojects {
+  repositories {
+    ...
+    maven { url 'https://jitpack.io' }
+  }
+}
+```
+
+Download via Gradle:
+```
+dependencies {
+  compile 'com.github.nihad92:SwipeableCards:{latestvesion}'
+}
+```
  
 ### Example
 
