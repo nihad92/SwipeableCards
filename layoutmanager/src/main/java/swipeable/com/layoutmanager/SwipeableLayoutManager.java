@@ -48,7 +48,7 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
       measureChildWithMargins(view, 0, 0);
       int widthSpace = getWidth() - getDecoratedMeasuredWidth(view);
       int heightSpace = getHeight() - getDecoratedMeasuredHeight(view);
-      layoutDecoratedWithMargins(view, widthSpace / 2, heightSpace / 2,
+      layoutDecorated(view, widthSpace / 2, heightSpace / 2,
           widthSpace / 2 + getDecoratedMeasuredWidth(view),
           heightSpace / 2 + getDecoratedMeasuredHeight(view));
       if (position > 0) {
