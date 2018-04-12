@@ -32,14 +32,16 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
 
   @Override
   public final int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-    return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN);
+    return makeMovementFlags(0, viewHolder.getAdapterPosition() != 0 ? 0
+        : ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN);
   }
 
   public final float getThreshold(RecyclerView.ViewHolder viewHolder) {
     return viewHolder.itemView.getWidth() * 0.9f;
   }
 
-  @Override public final boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+  @Override
+  public final boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
       RecyclerView.ViewHolder target) {
     return false;
   }
@@ -58,15 +60,14 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     return 0.5f;
   }
 
-  @Override
-  public final long getAnimationDuration(RecyclerView recyclerView, int animationType, float animateDx,
-      float animateDy) {
-    return ((SwipeableLayoutManager)recyclerView.getLayoutManager()).getAnimationDuratuion();
+  @Override public final long getAnimationDuration(RecyclerView recyclerView, int animationType,
+      float animateDx, float animateDy) {
+    return ((SwipeableLayoutManager) recyclerView.getLayoutManager()).getAnimationDuratuion();
   }
 
-  @Override
-  public final void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-      float dX, float dY, int actionState, boolean isCurrentlyActive) {
+  @Override public final void onChildDraw(Canvas c, RecyclerView recyclerView,
+      RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState,
+      boolean isCurrentlyActive) {
     super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     double swipValue = Math.sqrt(dX * dX + dY * dY);
     double fraction = swipValue / getThreshold(viewHolder);
@@ -78,7 +79,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
 
     int childCount = recyclerView.getChildCount();
     if (viewHolder.getAdapterPosition() == 0) {
-      viewHolder.itemView.setRotation(swipeableLayoutManager.getAngle() * (dX/recyclerView.getMeasuredWidth()));
+      viewHolder.itemView.setRotation(
+          swipeableLayoutManager.getAngle() * (dX / recyclerView.getMeasuredWidth()));
     }
 
     for (int i = 0; i < childCount; i++) {
@@ -99,7 +101,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     }
   }
 
-  @Override public final void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+  @Override
+  public final void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
     super.clearView(recyclerView, viewHolder);
     viewHolder.itemView.setRotation(0);
   }
