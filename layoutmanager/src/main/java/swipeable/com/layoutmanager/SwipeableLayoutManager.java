@@ -64,19 +64,19 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
     }
   }
 
-  float getScaleGap() {
+  public float getScaleGap() {
     return scaleGap;
   }
 
-  int getMaxShowCount() {
+  public int getMaxShowCount() {
     return maxShowCount;
   }
 
-  int getTransYGap() {
+  public int getTransYGap() {
     return transYGap;
   }
 
-  int getAngle() {
+  public int getAngle() {
     return angle;
   }
 
@@ -134,4 +134,6 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
     this.animationDuratuion = Math.max(1,animationDuratuion);
     return this;
   }
+
+
 }

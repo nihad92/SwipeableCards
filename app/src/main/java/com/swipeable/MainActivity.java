@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         });
     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
     itemTouchHelper.attachToRecyclerView(recyclerView);
-    recyclerView.setLayoutManager(new SwipeableLayoutManager().setAngle(10).setAnimationDuratuion(500).setMaxShowCount(3).setScaleGap(0.1f).setTransYGap(0));
+    recyclerView.setLayoutManager(new SwipeableLayoutManager().setAngle(40).setAnimationDuratuion(1000).setMaxShowCount(3).setScaleGap(0.1f).setTransYGap(0));
     recyclerView.setAdapter(adapter = new ListAdapter());
   }
 }
