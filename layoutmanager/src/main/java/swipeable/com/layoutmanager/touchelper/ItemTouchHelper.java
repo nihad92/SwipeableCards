@@ -42,7 +42,7 @@ import android.view.ViewParent;
 import android.view.animation.Interpolator;
 import java.util.ArrayList;
 import java.util.List;
-import swipeable.com.layoutmanager.SwipeableLayoutManager;
+import swipeable.com.layoutmanager.SwipeableTouchHelperCallback;
 
 /**
  * This is a utility class to add swipe to dismiss and drag & drop support to RecyclerView.
@@ -60,8 +60,10 @@ import swipeable.com.layoutmanager.SwipeableLayoutManager;
  * interface in your LayoutManager.
  * <p>
  * By default, ItemTouchHelper moves the items' translateX/Y properties to reposition them. You can
- * customize these behaviors by overriding {@link Callback#onChildDraw(Canvas, RecyclerView, * ViewHolder, float, float, int, boolean)}
- * or {@link Callback#onChildDrawOver(Canvas, RecyclerView, ViewHolder, float, float, int, * boolean)}.
+ * customize these behaviors by overriding {@link Callback#onChildDraw(Canvas, RecyclerView, *
+ * ViewHolder, float, float, int, boolean)}
+ * or {@link Callback#onChildDrawOver(Canvas, RecyclerView, ViewHolder, float, float, int, *
+ * boolean)}.
  * <p/>
  * Most of the time you only need to override <code>onChildDraw</code>.
  */
@@ -576,11 +578,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
           case START:
           case END:
             targetTranslateY = mDy * 2f;
-            targetTranslateX =
-                Math.signum(mDx) *( mRecyclerView.getWidth() + (float) (
-                    mRecyclerView.getHeight()
-                        * Math.cos(Math.toRadians(
-                        ((SwipeableLayoutManager) mRecyclerView.getLayoutManager()).getAngle()))));
+            targetTranslateX = Math.signum(mDx) * (mRecyclerView.getWidth() + 200);
             break;
           case UP:
           case DOWN:
@@ -951,7 +949,10 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     if (vh == null) {
       return false;
     }
-    final int movementFlags = mCallback.getAbsoluteMovementFlags(mRecyclerView, vh);
+    final int movementFlags = mCallback.convertToAbsoluteDirection(
+        ItemTouchHelper.Callback.makeMovementFlags(0,
+            ((SwipeableTouchHelperCallback) mCallback).getAllowedSwipeDirectionsMovementFlags()),
+        ViewCompat.getLayoutDirection(mRecyclerView));
 
     final int swipeFlags =
         (movementFlags & ACTION_MODE_SWIPE_MASK) >> (DIRECTION_FLAG_COUNT * ACTION_STATE_SWIPE);

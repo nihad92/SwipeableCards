@@ -17,6 +17,7 @@
 package swipeable.com.layoutmanager;
 
 import android.graphics.Canvas;
+import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import swipeable.com.layoutmanager.touchelper.ItemTouchHelper;
@@ -33,7 +34,15 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
   @Override
   public final int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
     return makeMovementFlags(0, viewHolder.getAdapterPosition() != 0 ? 0
-        : ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN);
+        : getAllowedDirectionsMovementFlags());
+  }
+
+  public int getAllowedSwipeDirectionsMovementFlags() {
+    return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+  }
+
+  public int getAllowedDirectionsMovementFlags() {
+    return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN;
   }
 
   public final float getThreshold(RecyclerView.ViewHolder viewHolder) {
