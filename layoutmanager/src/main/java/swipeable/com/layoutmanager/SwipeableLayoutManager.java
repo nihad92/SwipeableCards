@@ -136,4 +136,6 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
   }
 
 
+
+
 }

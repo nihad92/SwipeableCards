@@ -17,7 +17,6 @@
 package swipeable.com.layoutmanager;
 
 import android.graphics.Canvas;
-import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import swipeable.com.layoutmanager.touchelper.ItemTouchHelper;
@@ -25,16 +24,23 @@ import swipeable.com.layoutmanager.touchelper.ItemTouchHelper;
 public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
 
   private final OnItemSwiped onItemSwiped;
+  private final OnItemSwipePercentageListener onItemSwipePercentageListener;
 
   public SwipeableTouchHelperCallback(OnItemSwiped onItemSwiped) {
+    this(onItemSwiped, null);
+  }
+
+  public SwipeableTouchHelperCallback(OnItemSwiped onItemSwiped,
+      OnItemSwipePercentageListener onItemSwipePercentageListener) {
     super();
     this.onItemSwiped = onItemSwiped;
+    this.onItemSwipePercentageListener = onItemSwipePercentageListener;
   }
 
   @Override
   public final int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-    return makeMovementFlags(0, viewHolder.getAdapterPosition() != 0 ? 0
-        : getAllowedDirectionsMovementFlags());
+    return makeMovementFlags(0,
+        viewHolder.getAdapterPosition() != 0 ? 0 : getAllowedDirectionsMovementFlags());
   }
 
   public int getAllowedSwipeDirectionsMovementFlags() {
@@ -80,9 +86,13 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     double swipValue = Math.sqrt(dX * dX + dY * dY);
     double fraction = swipValue / getThreshold(viewHolder);
-    if (fraction > 1) {
-      fraction = 1;
+    fraction = Math.min(1, fraction);
+
+    if (onItemSwipePercentageListener != null) {
+      onItemSwipePercentageListener.onItemSwipePercentage(
+          Math.max(-1, Math.min(1, dX / recyclerView.getMeasuredWidth())));
     }
+
     SwipeableLayoutManager swipeableLayoutManager =
         (SwipeableLayoutManager) recyclerView.getLayoutManager();
 
