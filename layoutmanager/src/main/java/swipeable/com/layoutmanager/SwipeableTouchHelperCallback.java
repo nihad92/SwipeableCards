@@ -24,17 +24,10 @@ import swipeable.com.layoutmanager.touchelper.ItemTouchHelper;
 public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
 
   private final OnItemSwiped onItemSwiped;
-  private final OnItemSwipePercentageListener onItemSwipePercentageListener;
 
   public SwipeableTouchHelperCallback(OnItemSwiped onItemSwiped) {
-    this(onItemSwiped, null);
-  }
-
-  public SwipeableTouchHelperCallback(OnItemSwiped onItemSwiped,
-      OnItemSwipePercentageListener onItemSwipePercentageListener) {
     super();
     this.onItemSwiped = onItemSwiped;
-    this.onItemSwipePercentageListener = onItemSwipePercentageListener;
   }
 
   @Override
@@ -88,8 +81,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     double fraction = swipValue / getThreshold(viewHolder);
     fraction = Math.min(1, fraction);
 
-    if (onItemSwipePercentageListener != null) {
-      onItemSwipePercentageListener.onItemSwipePercentage(
+    if (viewHolder instanceof OnItemSwipePercentageListener) {
+      ((OnItemSwipePercentageListener)viewHolder).onItemSwipePercentage(
           Math.max(-1, Math.min(1, dX / recyclerView.getMeasuredWidth())));
     }
 
