@@ -21,6 +21,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import swipeable.com.layoutmanager.touchelper.ItemTouchHelper;
 
+
 public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
 
   private final OnItemSwiped onItemSwiped;
@@ -63,10 +64,10 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
   }
 
   @Override public final void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-    if (direction == ItemTouchHelper.LEFT) {
+    if (direction == ItemTouchHelper.LEFT && (getAllowedSwipeDirectionsMovementFlags(viewHolder) & ItemTouchHelper.LEFT) != 0) {
       onItemSwiped.onItemSwipedLeft();
       onItemSwiped.onItemSwiped();
-    } else if (direction == ItemTouchHelper.RIGHT) {
+    } else if (direction == ItemTouchHelper.RIGHT && (getAllowedSwipeDirectionsMovementFlags(viewHolder) & ItemTouchHelper.RIGHT) != 0) {
       onItemSwiped.onItemSwipedRight();
       onItemSwiped.onItemSwiped();
     }
