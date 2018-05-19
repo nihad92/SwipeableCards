@@ -33,11 +33,15 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
   @Override
   public final int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
     return makeMovementFlags(0,
-        viewHolder.getAdapterPosition() != 0 ? 0 : getAllowedDirectionsMovementFlags());
+        viewHolder.getAdapterPosition() != 0 ? 0 : getAllowedDirectionsMovementFlags(viewHolder));
   }
 
   public int getAllowedSwipeDirectionsMovementFlags() {
     return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+  }
+
+  public int getAllowedDirectionsMovementFlags(RecyclerView.ViewHolder viewHolder) {
+    return getAllowedDirectionsMovementFlags();
   }
 
   public int getAllowedDirectionsMovementFlags() {
