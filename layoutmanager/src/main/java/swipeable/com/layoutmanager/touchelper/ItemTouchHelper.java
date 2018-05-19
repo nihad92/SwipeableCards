@@ -951,7 +951,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     }
     final int movementFlags = mCallback.convertToAbsoluteDirection(
         ItemTouchHelper.Callback.makeMovementFlags(0,
-            ((SwipeableTouchHelperCallback) mCallback).getAllowedSwipeDirectionsMovementFlags()),
+            ((SwipeableTouchHelperCallback) mCallback).getAllowedSwipeDirectionsMovementFlags(vh)),
         ViewCompat.getLayoutDirection(mRecyclerView));
 
     final int swipeFlags =

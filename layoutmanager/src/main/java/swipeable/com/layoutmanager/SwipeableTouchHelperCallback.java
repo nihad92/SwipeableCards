@@ -30,22 +30,26 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     this.onItemSwiped = onItemSwiped;
   }
 
-  @Override
-  public final int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-    return makeMovementFlags(0,
-        viewHolder.getAdapterPosition() != 0 ? 0 : getAllowedDirectionsMovementFlags(viewHolder));
-  }
-
   public int getAllowedSwipeDirectionsMovementFlags() {
     return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
   }
 
-  public int getAllowedDirectionsMovementFlags(RecyclerView.ViewHolder viewHolder) {
+  public int getAllowedSwipeDirectionsMovementFlags(RecyclerView.ViewHolder viewHolder) {
+    return getAllowedSwipeDirectionsMovementFlags();
+  }
+
+  public int getAllowedDirectionsMovementFlags(RecyclerView.ViewHolder holder) {
     return getAllowedDirectionsMovementFlags();
   }
 
   public int getAllowedDirectionsMovementFlags() {
     return ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+  }
+
+  @Override
+  public final int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+    return makeMovementFlags(0,
+        viewHolder.getAdapterPosition() != 0 ? 0 : getAllowedDirectionsMovementFlags(viewHolder));
   }
 
   public final float getThreshold(RecyclerView.ViewHolder viewHolder) {
@@ -86,7 +90,7 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     fraction = Math.min(1, fraction);
 
     if (viewHolder instanceof OnItemSwipePercentageListener) {
-      ((OnItemSwipePercentageListener)viewHolder).onItemSwipePercentage(
+      ((OnItemSwipePercentageListener) viewHolder).onItemSwipePercentage(
           Math.max(-1, Math.min(1, dX / recyclerView.getMeasuredWidth())));
     }
 
