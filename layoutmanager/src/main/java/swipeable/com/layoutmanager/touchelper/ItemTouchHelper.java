@@ -572,18 +572,48 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         // find where we should animate to
         final float targetTranslateX, targetTranslateY;
         int animationType;
+        int allowedSwipeDirections =
+            ((SwipeableTouchHelperCallback) mCallback).getAllowedSwipeDirectionsMovementFlags(
+                mSelected);
         switch (swipeDir) {
           case LEFT:
+            if ((allowedSwipeDirections & LEFT) == 0) {
+              targetTranslateX = 0;
+              targetTranslateY = 0;
+            } else {
+              targetTranslateY = mDy * 2f;
+              targetTranslateX = Math.signum(mDx) * (mRecyclerView.getWidth() + 200);
+            }
+            break;
           case RIGHT:
-          case START:
-          case END:
-            targetTranslateY = mDy * 2f;
-            targetTranslateX = Math.signum(mDx) * (mRecyclerView.getWidth() + 200);
+            if ((allowedSwipeDirections & RIGHT) == 0) {
+              targetTranslateX = 0;
+              targetTranslateY = 0;
+            } else {
+              targetTranslateY = mDy * 2f;
+              targetTranslateX = Math.signum(mDx) * (mRecyclerView.getWidth() + 200);
+            }
             break;
           case UP:
+            if ((allowedSwipeDirections & UP) == 0) {
+              targetTranslateX = 0;
+              targetTranslateY = 0;
+            } else {
+              targetTranslateY = Math.signum(mDy) * (mRecyclerView.getHeight() + 200);
+              targetTranslateX = mDx * 2f;
+            }
+            break;
           case DOWN:
-           /* targetTranslateX = mDx;
-            targetTranslateY = Math.signum(mDy) * mRecyclerView.getHeight();;*/
+            if ((allowedSwipeDirections & DOWN) == 0) {
+              targetTranslateX = 0;
+              targetTranslateY = 0;
+            } else {
+              targetTranslateY = Math.signum(mDy) * (mRecyclerView.getHeight() + 200);
+              targetTranslateX = mDx * 2f;
+            }
+            break;
+          case START:
+          case END:
           default:
             targetTranslateX = 0;
             targetTranslateY = 0;

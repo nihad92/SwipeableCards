@@ -3,6 +3,7 @@ package com.swipeable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import swipeable.com.layoutmanager.OnItemSwiped;
 import swipeable.com.layoutmanager.SwipeableLayoutManager;
 import swipeable.com.layoutmanager.SwipeableTouchHelperCallback;
@@ -24,16 +25,33 @@ public class MainActivity extends AppCompatActivity {
           }
 
           @Override public void onItemSwipedLeft() {
-
+            Log.e("SWIPE", "LEFT");
           }
 
           @Override public void onItemSwipedRight() {
-
+            Log.e("SWIPE", "RIGHT");
           }
-        });
+
+          @Override public void onItemSwipedUp() {
+            Log.e("SWIPE", "UP");
+          }
+
+          @Override public void onItemSwipedDown() {
+            Log.e("SWIPE", "DOWN");
+          }
+        }) {
+          @Override
+          public int getAllowedSwipeDirectionsMovementFlags(RecyclerView.ViewHolder viewHolder) {
+            return ItemTouchHelper.RIGHT | ItemTouchHelper.UP;
+          }
+        };
     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
     itemTouchHelper.attachToRecyclerView(recyclerView);
-    recyclerView.setLayoutManager(new SwipeableLayoutManager().setAngle(10).setAnimationDuratuion(800).setMaxShowCount(3).setScaleGap(0.1f).setTransYGap(0));
+    recyclerView.setLayoutManager(new SwipeableLayoutManager().setAngle(10)
+        .setAnimationDuratuion(800)
+        .setMaxShowCount(3)
+        .setScaleGap(0.1f)
+        .setTransYGap(0));
     recyclerView.setAdapter(adapter = new ListAdapter());
   }
 }
