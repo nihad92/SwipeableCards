@@ -80,6 +80,7 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
       onItemSwiped.onItemSwipedDown();
       onItemSwiped.onItemSwiped();
     }
+    viewHolder.itemView.invalidate();
   }
 
   @Override public final float getSwipeThreshold(RecyclerView.ViewHolder viewHolder) {
@@ -111,6 +112,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     if (viewHolder.getAdapterPosition() == 0) {
       viewHolder.itemView.setRotation(
           swipeableLayoutManager.getAngle() * (dX / recyclerView.getMeasuredWidth()));
+      viewHolder.itemView.setScaleX(1);
+      viewHolder.itemView.setScaleY(1);
     }
 
     for (int i = 0; i < childCount; i++) {
@@ -125,8 +128,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
 
         if (level < swipeableLayoutManager.getMaxShowCount() - 1) {
           child.setScaleY(scale);
-          child.setTranslationY(Math.max(0, (float) (swipeableLayoutManager.getTransYGap() * level
-              - fraction * swipeableLayoutManager.getTransYGap())));
+          /*child.setTranslationY(Math.max(0, (float) (swipeableLayoutManager.getTransYGap() * level
+              - fraction * swipeableLayoutManager.getTransYGap())));*/
         }
       }
     }
@@ -136,5 +139,7 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
   public final void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
     super.clearView(recyclerView, viewHolder);
     viewHolder.itemView.setRotation(0);
+    viewHolder.itemView.setScaleX(1);
+    viewHolder.itemView.setScaleY(1);
   }
 }
