@@ -15,9 +15,7 @@
         android:layout_height="128dp"
         android:layout_gravity="center"
         android:src="@mipmap/ic_launcher"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         />
     <TextView
         android:id="@+id/text"

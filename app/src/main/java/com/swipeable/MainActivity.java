@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
     itemTouchHelper.attachToRecyclerView(recyclerView);
     recyclerView.setLayoutManager(new SwipeableLayoutManager().setAngle(10)
-        .setAnimationDuratuion(800)
+        .setAnimationDuratuion(600)
         .setMaxShowCount(3)
         .setScaleGap(0.1f)
         .setTransYGap(0));

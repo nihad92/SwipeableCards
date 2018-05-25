@@ -548,6 +548,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     if (selected == mSelected && actionState == mActionState) {
       return;
     }
+    if (selected != mSelected && RecoverAnimation.inProgress) return;
     mDragScrollStartTimeInMs = Long.MIN_VALUE;
     final int prevActionState = mActionState;
     // prevent duplicate animations
@@ -2352,6 +2353,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
     private float mFraction;
 
+    static boolean inProgress;
+
     RecoverAnimation(ViewHolder viewHolder, int animationType, int actionState, float startDx,
         float startDy, float targetX, float targetY) {
       mActionState = actionState;
@@ -2407,7 +2410,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     @Override public void onAnimationStart(Animator animation) {
-
+      inProgress = true;
     }
 
     @Override public void onAnimationEnd(Animator animation) {
@@ -2415,6 +2418,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         mViewHolder.setIsRecyclable(true);
       }
       mEnded = true;
+      inProgress = false;
     }
 
     @Override public void onAnimationCancel(Animator animation) {

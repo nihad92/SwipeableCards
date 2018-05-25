@@ -1,6 +1,6 @@
 # SwipeableCards
 
-[![](https://jitpack.io/v/nihad92/SwipeableCards.svg)](https://jitpack.io/#nihad92/SwipeableCards)
+[![](https://jitpack.io/v/nihad92/SwipeableCards.svg)](https://jitpack.io/#nihad92/SwipeableCards) [![](https://jitpack.io/v/nihad92/SwipeableCards/month.svg)](https://jitpack.io/#nihad92/SwipeableCards) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-SwipableCards-blue.svg?style=flat)](https://android-arsenal.com/details/1/6889)
 
 Library for creating Tinder-like swipe cards effect using RecyclerView
 
