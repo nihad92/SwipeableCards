@@ -111,9 +111,6 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     if (viewHolder.getAdapterPosition() == 0) {
       viewHolder.itemView.setRotation(
           swipeableLayoutManager.getAngle() * (dX / recyclerView.getMeasuredWidth()));
-      viewHolder.itemView.setScaleY(1);
-      viewHolder.itemView.setScaleX(1);
-      viewHolder.itemView.setTranslationY(0);
     }
 
     for (int i = 0; i < childCount; i++) {
@@ -121,22 +118,17 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
       int level = childCount - i - 1;
 
       if (level > 0) {
-        child.setScaleX((float) (1 - swipeableLayoutManager.getScaleGap() * level
-            + fraction * swipeableLayoutManager.getScaleGap()));
+        float scale = Math.max(0, Math.min(1,
+            (float) (1 - swipeableLayoutManager.getScaleGap() * level
+                + fraction * swipeableLayoutManager.getScaleGap())));
+        child.setScaleX(scale);
 
         if (level < swipeableLayoutManager.getMaxShowCount() - 1) {
-          child.setScaleY((float) (1 - swipeableLayoutManager.getScaleGap() * level
-              + fraction * swipeableLayoutManager.getScaleGap()));
-          child.setTranslationY((float) (swipeableLayoutManager.getTransYGap() * level
-              - fraction * swipeableLayoutManager.getTransYGap()));
+          child.setScaleY(scale);
+          child.setTranslationY(Math.max(0, (float) (swipeableLayoutManager.getTransYGap() * level
+              - fraction * swipeableLayoutManager.getTransYGap())));
         }
       }
-    }
-
-    if (viewHolder.getAdapterPosition() == 0) {
-      viewHolder.itemView.setScaleY(1);
-      viewHolder.itemView.setScaleX(1);
-      viewHolder.itemView.setTranslationY(0);
     }
   }
 
@@ -144,8 +136,5 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
   public final void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
     super.clearView(recyclerView, viewHolder);
     viewHolder.itemView.setRotation(0);
-    viewHolder.itemView.setScaleX(1);
-    viewHolder.itemView.setScaleY(1);
-    viewHolder.itemView.setTranslationY(0);
   }
 }
