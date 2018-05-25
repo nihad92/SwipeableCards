@@ -113,6 +113,7 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
           swipeableLayoutManager.getAngle() * (dX / recyclerView.getMeasuredWidth()));
       viewHolder.itemView.setScaleY(1);
       viewHolder.itemView.setScaleX(1);
+      viewHolder.itemView.setTranslationY(0);
     }
 
     for (int i = 0; i < childCount; i++) {
@@ -143,5 +144,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
   public final void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
     super.clearView(recyclerView, viewHolder);
     viewHolder.itemView.setRotation(0);
+    viewHolder.itemView.setScaleX(1);
+    viewHolder.itemView.setScaleY(1);
+    viewHolder.itemView.setTranslationY(0);
   }
 }
