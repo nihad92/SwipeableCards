@@ -111,6 +111,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
     if (viewHolder.getAdapterPosition() == 0) {
       viewHolder.itemView.setRotation(
           swipeableLayoutManager.getAngle() * (dX / recyclerView.getMeasuredWidth()));
+      viewHolder.itemView.setScaleY(1);
+      viewHolder.itemView.setScaleX(1);
     }
 
     for (int i = 0; i < childCount; i++) {
@@ -128,6 +130,12 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
               - fraction * swipeableLayoutManager.getTransYGap()));
         }
       }
+    }
+
+    if (viewHolder.getAdapterPosition() == 0) {
+      viewHolder.itemView.setScaleY(1);
+      viewHolder.itemView.setScaleX(1);
+      viewHolder.itemView.setTranslationY(0);
     }
   }
 

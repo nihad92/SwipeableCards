@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         }) {
           @Override
           public int getAllowedSwipeDirectionsMovementFlags(RecyclerView.ViewHolder viewHolder) {
-            return ItemTouchHelper.RIGHT | ItemTouchHelper.UP;
+            return ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT;
           }
         };
     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
