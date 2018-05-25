@@ -128,8 +128,8 @@ public class SwipeableTouchHelperCallback extends ItemTouchHelper.Callback {
 
         if (level < swipeableLayoutManager.getMaxShowCount() - 1) {
           child.setScaleY(scale);
-          /*child.setTranslationY(Math.max(0, (float) (swipeableLayoutManager.getTransYGap() * level
-              - fraction * swipeableLayoutManager.getTransYGap())));*/
+          child.setTranslationY(Math.max(0, (float) (swipeableLayoutManager.getTransYGap() * level
+              - fraction * swipeableLayoutManager.getTransYGap())));
         }
       }
     }

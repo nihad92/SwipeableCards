@@ -52,16 +52,24 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
           widthSpace / 2 + getDecoratedMeasuredWidth(view),
           heightSpace / 2 + getDecoratedMeasuredHeight(view));
       if (position > 0) {
-        view.setScaleX(1 - scaleGap * position);
+        view.setScaleX(validateScale(1 - scaleGap * position));
         if (position < maxShowCount - 1) {
-          view.setTranslationY(transYGap * position);
-          view.setScaleY(1 - scaleGap * position);
+          view.setTranslationY(validateScale(transYGap * position));
+          view.setScaleY(validateScale(1 - scaleGap * position));
         } else {
-          view.setTranslationY(transYGap * (position - 1));
-          view.setScaleY(1 - scaleGap * (position - 1));
+          view.setTranslationY(validateTranslation(transYGap * (position - 1)));
+          view.setScaleY(validateScale(1 - scaleGap * (position - 1)));
         }
       }
     }
+  }
+
+  private final float validateTranslation(float value) {
+    return Math.max(0, value);
+  }
+
+  private final float validateScale(float value) {
+    return Math.max(0, Math.min(1, value));
   }
 
   public float getScaleGap() {
@@ -100,7 +108,7 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
    * @param scaleGap min value = 0 max value = 1 default value = 0.1
    */
   public SwipeableLayoutManager setScaleGap(float scaleGap) {
-    this.scaleGap = Math.min(Math.max(0,scaleGap), 1);
+    this.scaleGap = Math.min(Math.max(0, scaleGap), 1);
     return this;
   }
 
@@ -117,8 +125,6 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
 
   /**
    * Angle in degres used for rotation of top view while swiping left or right
-   * @param angle
-   * @return
    */
   public SwipeableLayoutManager setAngle(int angle) {
     this.angle = angle;
@@ -127,15 +133,9 @@ public class SwipeableLayoutManager extends RecyclerView.LayoutManager {
 
   /**
    * Animation duration after swiping view
-   * @param animationDuratuion
-   * @return
    */
   public SwipeableLayoutManager setAnimationDuratuion(long animationDuratuion) {
-    this.animationDuratuion = Math.max(1,animationDuratuion);
+    this.animationDuratuion = Math.max(1, animationDuratuion);
     return this;
   }
-
-
-
-
 }
