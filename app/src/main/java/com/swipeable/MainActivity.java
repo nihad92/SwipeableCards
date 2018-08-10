@@ -2,8 +2,10 @@ package com.swipeable;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import swipeable.com.layoutmanager.OnItemSwiped;
 import swipeable.com.layoutmanager.SwipeableLayoutManager;
 import swipeable.com.layoutmanager.SwipeableTouchHelperCallback;
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             return ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT;
           }
         };
-    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
+    final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipeableTouchHelperCallback);
     itemTouchHelper.attachToRecyclerView(recyclerView);
     recyclerView.setLayoutManager(new SwipeableLayoutManager().setAngle(10)
         .setAnimationDuratuion(450)
@@ -53,5 +55,12 @@ public class MainActivity extends AppCompatActivity {
         .setScaleGap(0.1f)
         .setTransYGap(0));
     recyclerView.setAdapter(adapter = new ListAdapter());
+
+    AppCompatButton button = findViewById(R.id.swipe);
+    button.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        itemTouchHelper.swipe(recyclerView.findViewHolderForAdapterPosition(0), ItemTouchHelper.DOWN);
+      }
+    });
   }
 }

@@ -143,13 +143,9 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
   static final int ACTIVE_POINTER_ID_NONE = -1;
 
   static final int DIRECTION_FLAG_COUNT = 8;
-
   private static final int ACTION_MODE_IDLE_MASK = (1 << DIRECTION_FLAG_COUNT) - 1;
-
   static final int ACTION_MODE_SWIPE_MASK = ACTION_MODE_IDLE_MASK << DIRECTION_FLAG_COUNT;
-
   static final int ACTION_MODE_DRAG_MASK = ACTION_MODE_SWIPE_MASK << DIRECTION_FLAG_COUNT;
-
   /**
    * The unit we are using to track velocity
    */
@@ -236,11 +232,48 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
    * jumpy UIs.
    */
   List<RecoverAnimation> mRecoverAnimations = new ArrayList<RecoverAnimation>();
-
-  private int mSlop;
-
   RecyclerView mRecyclerView;
-
+  /**
+   * Used for detecting fling swipe
+   */
+  VelocityTracker mVelocityTracker;
+  /**
+   * This keeps a reference to the child dragged by the user. Even after user stops dragging,
+   * until view reaches its final position (end of recover animation), we keep a reference so
+   * that it can be drawn above other children.
+   */
+  View mOverdrawChild = null;
+  /**
+   * We cache the position of the overdraw child to avoid recalculating it each time child
+   * position callback is called. This value is invalidated whenever a child is attached or
+   * detached.
+   */
+  int mOverdrawChildPosition = -1;
+  /**
+   * Used to detect long press.
+   */
+  GestureDetectorCompat mGestureDetector;
+  private int mSlop;
+  //re-used list for selecting a swap target
+  private List<ViewHolder> mSwapTargets;
+  //re used for for sorting swap targets
+  private List<Integer> mDistances;
+  /**
+   * If drag & drop is supported, we use child drawing order to bring them to front.
+   */
+  private RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = null;
+  /**
+   * Callback for when long press occurs.
+   */
+  private ItemTouchHelperGestureListener mItemTouchHelperGestureListener;
+  /**
+   * Temporary rect instance that is used when we need to lookup Item decorations.
+   */
+  private Rect mTmpRect;
+  /**
+   * When user started to drag scroll. Reset when we don't scroll
+   */
+  private long mDragScrollStartTimeInMs;
   /**
    * When user drags a view to the edge, we start scrolling the LayoutManager as long as View
    * is partially out of bounds.
@@ -256,47 +289,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
       }
     }
   };
-
-  /**
-   * Used for detecting fling swipe
-   */
-  VelocityTracker mVelocityTracker;
-
-  //re-used list for selecting a swap target
-  private List<ViewHolder> mSwapTargets;
-
-  //re used for for sorting swap targets
-  private List<Integer> mDistances;
-
-  /**
-   * If drag & drop is supported, we use child drawing order to bring them to front.
-   */
-  private RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = null;
-
-  /**
-   * This keeps a reference to the child dragged by the user. Even after user stops dragging,
-   * until view reaches its final position (end of recover animation), we keep a reference so
-   * that it can be drawn above other children.
-   */
-  View mOverdrawChild = null;
-
-  /**
-   * We cache the position of the overdraw child to avoid recalculating it each time child
-   * position callback is called. This value is invalidated whenever a child is attached or
-   * detached.
-   */
-  int mOverdrawChildPosition = -1;
-
-  /**
-   * Used to detect long press.
-   */
-  GestureDetectorCompat mGestureDetector;
-
-  /**
-   * Callback for when long press occurs.
-   */
-  private ItemTouchHelperGestureListener mItemTouchHelperGestureListener;
-
   private final OnItemTouchListener mOnItemTouchListener = new OnItemTouchListener() {
     @Override public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent event) {
       mGestureDetector.onTouchEvent(event);
@@ -405,16 +397,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
       select(null, ACTION_STATE_IDLE);
     }
   };
-
-  /**
-   * Temporary rect instance that is used when we need to lookup Item decorations.
-   */
-  private Rect mTmpRect;
-
-  /**
-   * When user started to drag scroll. Reset when we don't scroll
-   */
-  private long mDragScrollStartTimeInMs;
 
   /**
    * Creates an ItemTouchHelper that will work with the given Callback.
@@ -535,6 +517,64 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
       dy = mTmpPosition[1];
     }
     mCallback.onDraw(c, parent, mSelected, mRecoverAnimations, mActionState, dx, dy);
+  }
+
+  public void swipe(final ViewHolder viewHolder, final int direction) {
+    int allowedSwipeDirections =
+        ((SwipeableTouchHelperCallback) mCallback).getAllowedSwipeDirectionsMovementFlags(
+            mSelected);
+    if ((direction & allowedSwipeDirections) == 0) return;
+    int targetX = 0;
+    int targetY = 0;
+    if (direction == UP) {
+      targetY = -mRecyclerView.getHeight() - 200;
+    } else if (direction == DOWN) {
+      targetY = +mRecyclerView.getHeight() + 200;
+    }
+    if (direction == RIGHT) {
+      targetX = mRecyclerView.getWidth() + 200;
+    } else if (direction == LEFT) {
+      targetX = -mRecyclerView.getWidth() - 200;
+    }
+    startSwipe(viewHolder);
+    getSelectedDxDy(mTmpPosition);
+    final float currentTranslateX = mTmpPosition[0];
+    final float currentTranslateY = mTmpPosition[1];
+    final RecoverAnimation rv =
+        new RecoverAnimation(viewHolder, ANIMATION_TYPE_SWIPE_SUCCESS, ACTION_STATE_SWIPE,
+            currentTranslateX, currentTranslateY, targetX, targetY) {
+          @Override public void onAnimationEnd(Animator animation) {
+            super.onAnimationEnd(animation);
+            if (this.mOverridden) {
+              return;
+            }
+
+            mPendingCleanup.add(viewHolder.itemView);
+            mIsPendingCleanup = true;
+
+            // Animation might be ended by other animators during a layout.
+            // We defer callback to avoid editing adapter during a layout.
+            postDispatchSwipe(this, direction);
+
+            // removed from the list after it is drawn for the last time
+            if (mOverdrawChild == viewHolder.itemView) {
+              removeChildDrawingOrderCallbackIfNecessary(viewHolder.itemView);
+            }
+          }
+        };
+    final long duration =
+        mCallback.getAnimationDuration(mRecyclerView, ANIMATION_TYPE_SWIPE_SUCCESS,
+            targetX - currentTranslateX, targetY - currentTranslateY);
+    rv.setDuration(duration);
+    mRecoverAnimations.add(rv);
+    rv.start();
+    mSelected = null;
+    final ViewParent rvParent = mRecyclerView.getParent();
+    if (rvParent != null) {
+      rvParent.requestDisallowInterceptTouchEvent(mSelected != null);
+    }
+    mCallback.onSelectedChanged(mSelected, mActionState);
+    mRecyclerView.invalidate();
   }
 
   /**
@@ -1406,8 +1446,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      */
     private static final long DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000;
 
-    private int mCachedMaxScrollSpeed = -1;
-
     static {
       if (Build.VERSION.SDK_INT >= 21) {
         sUICallback = new ItemTouchUIUtilImpl.Api21Impl();
@@ -1415,6 +1453,8 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         sUICallback = new ItemTouchUIUtilImpl.BaseImpl();
       }
     }
+
+    private int mCachedMaxScrollSpeed = -1;
 
     /**
      * Returns the {@link ItemTouchUIUtil} that is used by the {@link Callback} class for
@@ -2254,106 +2294,25 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     }
   }
 
-  private class ItemTouchHelperGestureListener extends GestureDetector.SimpleOnGestureListener {
-
-    /**
-     * Whether to execute code in response to the the invoking of
-     * {@link ItemTouchHelperGestureListener#onLongPress(MotionEvent)}.
-     *
-     * It is necessary to control this here because
-     * {@link GestureDetector.SimpleOnGestureListener} can only be set on a
-     * {@link GestureDetector} in a GestureDetector's constructor, a GestureDetector will call
-     * onLongPress if an {@link MotionEvent#ACTION_DOWN} event is not followed by another event
-     * that would cancel it (like {@link MotionEvent#ACTION_UP} or
-     * {@link MotionEvent#ACTION_CANCEL}), the long press responding to the long press event
-     * needs to be cancellable to prevent unexpected behavior.
-     *
-     * @see #doNotReactToLongPress()
-     */
-    private boolean mShouldReactToLongPress = true;
-
-    ItemTouchHelperGestureListener() {
-    }
-
-    /**
-     * Call to prevent executing code in response to
-     * {@link ItemTouchHelperGestureListener#onLongPress(MotionEvent)} being called.
-     */
-    void doNotReactToLongPress() {
-      mShouldReactToLongPress = false;
-    }
-
-    @Override public boolean onDown(MotionEvent e) {
-      return true;
-    }
-
-    @Override public void onLongPress(MotionEvent e) {
-      if (!mShouldReactToLongPress) {
-        return;
-      }
-      View child = findChildView(e);
-      if (child != null) {
-        ViewHolder vh = mRecyclerView.getChildViewHolder(child);
-        if (vh != null) {
-          if (!mCallback.hasDragFlag(mRecyclerView, vh)) {
-            return;
-          }
-          int pointerId = e.getPointerId(0);
-          // Long press is deferred.
-          // Check w/ active pointer id to avoid selecting after motion
-          // event is canceled.
-          if (pointerId == mActivePointerId) {
-            final int index = e.findPointerIndex(mActivePointerId);
-            final float x = e.getX(index);
-            final float y = e.getY(index);
-            mInitialTouchX = x;
-            mInitialTouchY = y;
-            mDx = mDy = 0f;
-            if (DEBUG) {
-              Log.d(TAG, "onlong press: x:" + mInitialTouchX + ",y:" + mInitialTouchY);
-            }
-            if (mCallback.isLongPressDragEnabled()) {
-              select(vh, ACTION_STATE_DRAG);
-            }
-          }
-        }
-      }
-    }
-  }
-
   private static class RecoverAnimation implements Animator.AnimatorListener {
 
+    static boolean inProgress;
     final float mStartDx;
-
     final float mStartDy;
-
     final float mTargetX;
-
     final float mTargetY;
-
     final ViewHolder mViewHolder;
-
     final int mActionState;
-
-    private final ValueAnimator mValueAnimator;
-
     final int mAnimationType;
-
+    private final ValueAnimator mValueAnimator;
     public boolean mIsPendingCleanup;
-
     float mX;
-
     float mY;
-
     // if user starts touching a recovering view, we put it into interaction mode again,
     // instantly.
     boolean mOverridden = false;
-
     boolean mEnded = false;
-
     private float mFraction;
-
-    static boolean inProgress;
 
     RecoverAnimation(ViewHolder viewHolder, int animationType, int actionState, float startDx,
         float startDy, float targetX, float targetY) {
@@ -2427,6 +2386,73 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
     @Override public void onAnimationRepeat(Animator animation) {
 
+    }
+  }
+
+  private class ItemTouchHelperGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+    /**
+     * Whether to execute code in response to the the invoking of
+     * {@link ItemTouchHelperGestureListener#onLongPress(MotionEvent)}.
+     *
+     * It is necessary to control this here because
+     * {@link GestureDetector.SimpleOnGestureListener} can only be set on a
+     * {@link GestureDetector} in a GestureDetector's constructor, a GestureDetector will call
+     * onLongPress if an {@link MotionEvent#ACTION_DOWN} event is not followed by another event
+     * that would cancel it (like {@link MotionEvent#ACTION_UP} or
+     * {@link MotionEvent#ACTION_CANCEL}), the long press responding to the long press event
+     * needs to be cancellable to prevent unexpected behavior.
+     *
+     * @see #doNotReactToLongPress()
+     */
+    private boolean mShouldReactToLongPress = true;
+
+    ItemTouchHelperGestureListener() {
+    }
+
+    /**
+     * Call to prevent executing code in response to
+     * {@link ItemTouchHelperGestureListener#onLongPress(MotionEvent)} being called.
+     */
+    void doNotReactToLongPress() {
+      mShouldReactToLongPress = false;
+    }
+
+    @Override public boolean onDown(MotionEvent e) {
+      return true;
+    }
+
+    @Override public void onLongPress(MotionEvent e) {
+      if (!mShouldReactToLongPress) {
+        return;
+      }
+      View child = findChildView(e);
+      if (child != null) {
+        ViewHolder vh = mRecyclerView.getChildViewHolder(child);
+        if (vh != null) {
+          if (!mCallback.hasDragFlag(mRecyclerView, vh)) {
+            return;
+          }
+          int pointerId = e.getPointerId(0);
+          // Long press is deferred.
+          // Check w/ active pointer id to avoid selecting after motion
+          // event is canceled.
+          if (pointerId == mActivePointerId) {
+            final int index = e.findPointerIndex(mActivePointerId);
+            final float x = e.getX(index);
+            final float y = e.getY(index);
+            mInitialTouchX = x;
+            mInitialTouchY = y;
+            mDx = mDy = 0f;
+            if (DEBUG) {
+              Log.d(TAG, "onlong press: x:" + mInitialTouchX + ",y:" + mInitialTouchY);
+            }
+            if (mCallback.isLongPressDragEnabled()) {
+              select(vh, ACTION_STATE_DRAG);
+            }
+          }
+        }
+      }
     }
   }
 }

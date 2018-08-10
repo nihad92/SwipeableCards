@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/recycler_view"
-    android:orientation="vertical">
+    >
+  <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/recycler_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_above="@+id/swipe"
+      android:orientation="vertical"
+      >
 
-</android.support.v7.widget.RecyclerView>
+  </android.support.v7.widget.RecyclerView>
+  <android.support.v7.widget.AppCompatButton
+      android:id="@+id/swipe"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      />
+</RelativeLayout>
